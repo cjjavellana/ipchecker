@@ -33,11 +33,7 @@ class IPChecker(threading.Thread):
         try:
             while True:
                 task = self.task_queue.get()
-                
-                if task.ip_addr == '0.0.0.0':
-                    print 'Read poisoned pill. Exiting Thread %s' % (self.thread_id)
-                    break
-                
+                                
                 country = geoip.country(task.ip_addr)
                 print '[Thread: %s] Popped Ip: %s, Time: %s, Country: %s' % \
                     (self.thread_id, task.ip_addr, task.time, country)
@@ -70,25 +66,21 @@ def main():
     '''
     Open the apache logs
     '''
-    with open('access_log_20140723') as f:
+    with open('access_log_20140719') as f:
         for line in f:
             ip = str.split(line)
-            #print 'Ip Address: %s' % (ip[0])
-            task = Task(ip_addr=ip[1], time=ip[5])
+            task = Task(ip_addr=ip[1], time=ip[5][1:])
             queue.put(task)
 
     '''
     Wait for threads to finish
     '''
     queue.join()
-    #for x in range(0, 20):
-    #    task = Task(ip_addr='0.0.0.0', time=None)
-    #    queue.put(task)
 
     print '** Processing Complete. Printing result **'
 
     for v in collector_set:
-        print 'Ip Address: %s' % (v)
+        print '%s' % (v)
 
 if __name__ == '__main__':
     main()
