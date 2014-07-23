@@ -46,6 +46,8 @@ class IPChecker(threading.Thread):
                     with lock:
                         self.collector_set.add(task.ip_addr)
 
+                self.task_queue.task_done();
+
         except:
             print "Unexpected error:", sys.exc_info()[0]
             raise
@@ -58,7 +60,7 @@ def main():
     collector_set = Set()
 
     '''
-    Instantiate 10 Threads
+    Instantiate 20 Threads
     '''
     for x in range(0, 20):
         t = IPChecker(thread_id=x, task_queue=queue, collector_set=collector_set)
@@ -75,15 +77,13 @@ def main():
             task = Task(ip_addr=ip[1], time=ip[5])
             queue.put(task)
 
-    print '** Finished Populating Queue. Injecting poisoned pill **'
-
     '''
     Wait for threads to finish
     '''
-    #queue.join()
-    for x in range(0, 20):
-        task = Task(ip_addr='0.0.0.0', time=None)
-        queue.put(task)
+    queue.join()
+    #for x in range(0, 20):
+    #    task = Task(ip_addr='0.0.0.0', time=None)
+    #    queue.put(task)
 
     print '** Processing Complete. Printing result **'
 
